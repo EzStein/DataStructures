@@ -14,7 +14,7 @@ exe/a.out: $(OBJECTS)
 	@gcc $(FLAGS) $^ -o $@
 	@echo BUILD SUCCESFUL
 
-obj/main.o : src/main.c
+obj/main.o : src/main.c src/avl_tree.h
 	$(COMPILE)
 obj/avl_tree.o : src/avl_tree.c src/avl_tree.h
 	$(COMPILE)
