@@ -1,27 +1,28 @@
-#include "avl_tree.h"
+#include "bst_tree.h"
 #include <stdlib.h>
 #include <string.h>
 
-static void avl_tree_free_sub_tree(void (*free_function)(void *), avl_tree_node_t *);
+static void bst_tree_free_sub_tree(void (*free_function)(void *), bst_tree_node_t *);
+static void bst_tree_traverse_sub_tree_in_order(bst_tree_node_t * node, void (*iterator)(void *));
 
-struct avl_tree_node {
-  avl_tree_node_t * parent, * left, * right;
+struct bst_tree_node {
+  bst_tree_node_t * parent, * left, * right;
   void * key;
 };
 
-void avl_tree_new(avl_tree_t * tree, size_t key_size, void (*free_function)(void *), int8_t (*compare)(void *, void *)) {
+void bst_tree_new(bst_tree_t * tree, size_t key_size, void (*free_function)(void *), int8_t (*compare)(void *, void *)) {
   tree->key_size = key_size;
   tree->free_function = free_function;
   tree->compare = compare;
   tree->root = NULL;
 }
 
-void avl_tree_add(avl_tree_t * tree, void * key) {
+void bst_tree_add(bst_tree_t * tree, void * key) {
   int8_t last_compare;
-  avl_tree_node_t * tmp_node;
-  avl_tree_node_t * tmp_parent_node;
+  bst_tree_node_t * tmp_node;
+  bst_tree_node_t * tmp_parent_node;
 
-  avl_tree_node_t * new_node = malloc(sizeof(avl_tree_node_t));
+  bst_tree_node_t * new_node = malloc(sizeof(bst_tree_node_t));
   new_node->key = malloc(tree->key_size);
   memcpy(new_node->key, key, tree->key_size);
   new_node->left = new_node->right = NULL;
@@ -52,10 +53,10 @@ void avl_tree_add(avl_tree_t * tree, void * key) {
   }
 }
 
-void avl_tree_remove(avl_tree_t * tree, void * key) {
-  avl_tree_node_t * node = tree->root;
-  avl_tree_node_t ** parents_child_ref;
-  avl_tree_node_t * tmp_node;
+void bst_tree_remove(bst_tree_t * tree, void * key) {
+  bst_tree_node_t * node = tree->root;
+  bst_tree_node_t ** parents_child_ref;
+  bst_tree_node_t * tmp_node;
   void * tmp_key;
 
   int8_t compare;
@@ -114,9 +115,9 @@ void avl_tree_remove(avl_tree_t * tree, void * key) {
   free(node);
 }
 
-int8_t avl_tree_contains(avl_tree_t * tree, void * key) {
+int8_t bst_tree_contains(bst_tree_t * tree, void * key) {
   int8_t compare;
-  avl_tree_node_t * node = tree->root;
+  bst_tree_node_t * node = tree->root;
   while(node) {
     compare = tree->compare(key, node->key);
     if(compare < 0) {
@@ -130,18 +131,29 @@ int8_t avl_tree_contains(avl_tree_t * tree, void * key) {
   return 0;
 }
 
-void avl_tree_free(avl_tree_t * tree) {
-  avl_tree_free_sub_tree(tree->free_function, tree->root);
+void bst_tree_free(bst_tree_t * tree) {
+  bst_tree_free_sub_tree(tree->free_function, tree->root);
 }
 
-static void avl_tree_free_sub_tree(void (*free_function)(void *), avl_tree_node_t * node) {
+static void bst_tree_free_sub_tree(void (*free_function)(void *), bst_tree_node_t * node) {
   if(!node) return;
-  avl_tree_free_sub_tree(free_function, node->left);
-  avl_tree_free_sub_tree(free_function, node->right);
+  bst_tree_free_sub_tree(free_function, node->left);
+  bst_tree_free_sub_tree(free_function, node->right);
 
   if(free_function)
     free_function(node->key);
 
   free(node->key);
   free(node);
+}
+
+void bst_tree_traverse_in_order(bst_tree_t * tree, void (*iterator)(void *)) {
+  bst_tree_traverse_sub_tree_in_order(tree->root, iterator);
+}
+
+static void bst_tree_traverse_sub_tree_in_order(bst_tree_node_t * node, void (*iterator)(void *)) {
+  if(!node) return;
+  bst_tree_traverse_sub_tree_in_order(node->left, iterator);
+  iterator(node->key);
+  bst_tree_traverse_sub_tree_in_order(node->right, iterator);
 }

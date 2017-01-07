@@ -1,22 +1,36 @@
 define COMPILE
-@echo COMPILING: $^
+@echo COMPILING: $^ INTO $@
 	@mkdir obj > /dev/null 2>&1 ||:
 	@gcc $(FLAGS) -c $(filter src/%.c, $^) -o $@
+endef
+define LINK
+@echo LINKING: $^ INTO $@
+	@mkdir exe > /dev/null 2>&1 ||:
+	@gcc $(FLAGS) $^ -o $@
+	@echo BUILD SUCCESFUL
 endef
 
 OBJECTS = $(patsubst src/%.c, obj/%.o, $(wildcard src/*.c))
 FLAGS = -g -Wall -Wextra -std=c89 -pedantic -Wmissing-prototypes \
 -Wstrict-prototypes -Wold-style-definition
 
-exe/a.out: $(OBJECTS)
-	@echo LINKING: $^
-	@mkdir exe > /dev/null 2>&1 ||:
-	@gcc $(FLAGS) $^ -o $@
-	@echo BUILD SUCCESFUL
+all : exe/a.out exe/tests.out
+tests : exe/tests.out
+exe : exe/a.out
 
-obj/main.o : src/main.c src/avl_tree.h
+exe/a.out: $(OBJECTS)
+	$(LINK)
+
+exe/tests.out : obj/tests.o
+	$(LINK)
+
+obj/main.o : src/main.c src/avl_tree.h src/bst_tree.h
 	$(COMPILE)
 obj/avl_tree.o : src/avl_tree.c src/avl_tree.h
+	$(COMPILE)
+obj/bst_tree.o : src/bst_tree.c src/bst_tree.h
+	$(COMPILE)
+obj/tests.o : src/tests/tests.c src/tests/minunit.h src/avl_tree.h src/bst_tree.h
 	$(COMPILE)
 
 clean:

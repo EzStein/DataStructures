@@ -1,28 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "avl_tree.h"
+#include <time.h>
+#include "bst_tree.h"
 
 int8_t compare(void * first, void * second);
+void iterator(void *);
 
 int main(void) {
-  int i;
-  int b;
-  avl_tree_t tree;
-  avl_tree_new(&tree, sizeof(int), NULL, compare);
-  for(i = 0; i < 100; i++) {
-    b = i*(i << 6);
-    avl_tree_add(&tree, &b);
+  int i, a;
+  bst_tree_t tree;
+  srand(time(NULL));
+  bst_tree_new(&tree, sizeof(int), NULL, compare);
+
+  for(i = 4000000; i >= 0; i--) {
+    a = rand();
+    bst_tree_add(&tree, &a);
   }
-  for(i = 0; i < 100; i+=2+i) {
-    b = i*(i << 6);
-    avl_tree_remove(&tree, &b);
-  }
-  for(i = 0; i < 100; i++) {
-    b = i*(i << 6);
-    printf("%i\n", avl_tree_contains(&tree, &b));
-  }
-  avl_tree_free(&tree);
+  bst_tree_traverse_in_order(&tree, iterator);
+
+  bst_tree_free(&tree);
   return 0;
+}
+
+void iterator(void * ptr) {
+  int val = *(int *) ptr;
+  printf("%i\n", val);
 }
 
 int8_t compare(void * first, void * second) {
