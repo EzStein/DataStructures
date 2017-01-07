@@ -3,7 +3,9 @@
 #include <string.h>
 
 static void bst_tree_free_sub_tree(void (*free_function)(void *), bst_tree_node_t *);
-static void bst_tree_traverse_sub_tree_in_order(bst_tree_node_t * node, void (*iterator)(void *));
+static void bst_tree_traverse_sub_tree_in_order(bst_tree_node_t * node, void (*iterator)(void *, int), uint8_t);
+static void bst_tree_traverse_sub_tree_pre_order(bst_tree_node_t * node, void (*iterator)(void *, int), uint8_t);
+static void bst_tree_traverse_sub_tree_post_order(bst_tree_node_t * node, void (*iterator)(void *, int), uint8_t);
 
 struct bst_tree_node {
   bst_tree_node_t * parent, * left, * right;
@@ -15,6 +17,7 @@ void bst_tree_new(bst_tree_t * tree, size_t key_size, void (*free_function)(void
   tree->free_function = free_function;
   tree->compare = compare;
   tree->root = NULL;
+  tree->size = 0;
 }
 
 void bst_tree_add(bst_tree_t * tree, void * key) {
@@ -22,16 +25,10 @@ void bst_tree_add(bst_tree_t * tree, void * key) {
   bst_tree_node_t * tmp_node;
   bst_tree_node_t * tmp_parent_node;
 
-  bst_tree_node_t * new_node = malloc(sizeof(bst_tree_node_t));
-  new_node->key = malloc(tree->key_size);
-  memcpy(new_node->key, key, tree->key_size);
-  new_node->left = new_node->right = NULL;
+  bst_tree_node_t * new_node;
 
-  if(!tree->root) {
-    new_node->parent = NULL;
-    tree->root = new_node;
-    return;
-  }
+
+
   tmp_node = tree->root;
   tmp_parent_node = NULL;
   while(tmp_node) {
@@ -45,8 +42,17 @@ void bst_tree_add(bst_tree_t * tree, void * key) {
       return;
     }
   }
+
+  tree->size++;
+  new_node = malloc(sizeof(bst_tree_node_t));
+  new_node->key = malloc(tree->key_size);
+  memcpy(new_node->key, key, tree->key_size);
+  new_node->left = new_node->right = NULL;
   new_node->parent = tmp_parent_node;
-  if(last_compare < 0) {
+
+  if(!tree->root) {
+    tree->root = new_node;
+  } else if(last_compare < 0) {
     tmp_parent_node->left = new_node;
   } else {
     tmp_parent_node->right = new_node;
@@ -109,6 +115,7 @@ void bst_tree_remove(bst_tree_t * tree, void * key) {
     *parents_child_ref = NULL;
   }
 
+  tree->size--;
   if(tree->free_function)
     tree->free_function(node->key);
   free(node->key);
@@ -147,13 +154,48 @@ static void bst_tree_free_sub_tree(void (*free_function)(void *), bst_tree_node_
   free(node);
 }
 
-void bst_tree_traverse_in_order(bst_tree_t * tree, void (*iterator)(void *)) {
-  bst_tree_traverse_sub_tree_in_order(tree->root, iterator);
+int bst_tree_size(bst_tree_t * tree) {
+  return tree->size;
 }
 
-static void bst_tree_traverse_sub_tree_in_order(bst_tree_node_t * node, void (*iterator)(void *)) {
+void bst_tree_traverse_in_order(bst_tree_t * tree, void (*iterator)(void *, int)) {
+  bst_tree_traverse_sub_tree_in_order(tree->root, iterator, 1);
+}
+
+void bst_tree_traverse_pre_order(bst_tree_t * tree, void (*iterator)(void *, int)) {
+  bst_tree_traverse_sub_tree_pre_order(tree->root, iterator, 1);
+}
+
+void bst_tree_traverse_post_order(bst_tree_t * tree, void (*iterator)(void *, int)) {
+  bst_tree_traverse_sub_tree_post_order(tree->root, iterator, 1);
+}
+
+static void bst_tree_traverse_sub_tree_in_order(bst_tree_node_t * node, void (*iterator)(void *, int), uint8_t reset) {
+  static int index = 0;
+  if(reset) index = 0;
   if(!node) return;
-  bst_tree_traverse_sub_tree_in_order(node->left, iterator);
-  iterator(node->key);
-  bst_tree_traverse_sub_tree_in_order(node->right, iterator);
+  bst_tree_traverse_sub_tree_in_order(node->left, iterator, 0);
+  iterator(node->key, index);
+  index++;
+  bst_tree_traverse_sub_tree_in_order(node->right, iterator, 0);
+}
+
+static void bst_tree_traverse_sub_tree_pre_order(bst_tree_node_t * node, void (*iterator)(void *, int), uint8_t reset) {
+  static int index = 0;
+  if(reset) index = 0;
+  if(!node) return;
+  iterator(node->key, index);
+  index++;
+  bst_tree_traverse_sub_tree_pre_order(node->left, iterator, 0);
+  bst_tree_traverse_sub_tree_pre_order(node->right, iterator, 0);
+}
+
+static void bst_tree_traverse_sub_tree_post_order(bst_tree_node_t * node, void (*iterator)(void *, int), uint8_t reset) {
+  static int index = 0;
+  if(reset) index = 0;
+  if(!node) return;
+  bst_tree_traverse_sub_tree_post_order(node->left, iterator, 0);
+  bst_tree_traverse_sub_tree_post_order(node->right, iterator, 0);
+  iterator(node->key, index);
+  index++;
 }

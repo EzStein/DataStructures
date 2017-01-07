@@ -21,7 +21,7 @@ exe : exe/a.out
 exe/a.out: $(OBJECTS)
 	$(LINK)
 
-exe/tests.out : obj/tests.o
+exe/tests.out : obj/tests.o obj/bst_tree.o
 	$(LINK)
 
 obj/main.o : src/main.c src/avl_tree.h src/bst_tree.h

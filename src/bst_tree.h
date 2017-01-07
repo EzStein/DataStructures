@@ -8,6 +8,7 @@ struct bst_tree {
   void (*free_function)(void *);
   int8_t (*compare)(void *, void *);
   size_t key_size;
+  int size;
 };
 
 /*
@@ -19,6 +20,9 @@ void bst_tree_add(bst_tree_t *, void *);
 void bst_tree_remove(bst_tree_t *, void *);
 int8_t bst_tree_contains(bst_tree_t *, void *);
 void bst_tree_free(bst_tree_t *);
-void bst_tree_traverse_in_order(bst_tree_t *, void (*iterator)(void *));
+int bst_tree_size(bst_tree_t *);
+void bst_tree_traverse_in_order(bst_tree_t *, void (*iterator)(void *, int));
+void bst_tree_traverse_pre_order(bst_tree_t *, void (*iterator)(void *, int));
+void bst_tree_traverse_post_order(bst_tree_t *, void (*iterator)(void *, int));
 
 #endif
