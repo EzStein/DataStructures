@@ -1,5 +1,6 @@
 #include "avl_tree.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 static void avl_tree_free_sub_tree(void (*free_function)(void *), avl_tree_node_t *);
@@ -63,21 +64,24 @@ void avl_tree_remove(avl_tree_t * tree, void * key) {
     compare = tree->compare(key, node->key);
     if(compare < 0) {
       node = node->left;
+      if(node)
+        parents_child_ref = &(node->parent->left);
     } else if (compare > 0) {
       node = node->right;
+      if(node)
+        parents_child_ref = &(node->parent->right);
     } else {
       break;
     }
   }
+
   if(!node) return;
 
   /*We must now remove node*/
-  if(node->parent) {
-    if(compare < 0)
-      parents_child_ref = &(node->parent->left);
-    else
-      parents_child_ref = &(node->parent->right);
+  if(!node->parent) {
+    parents_child_ref = &(tree->root);
   }
+
 
   if(node->left && node->right) {
     tmp_node = node->right;
@@ -92,25 +96,17 @@ void avl_tree_remove(avl_tree_t * tree, void * key) {
 
     node = tmp_node;
     *parents_child_ref = node->right;
+
     if(node->right)
       node->right->parent = node->parent;
   } else if(node->left && !node->right) {
     node->left->parent = node->parent;
-    if(!node->parent)
-      tree->root = node->left;
-    else
-      *parents_child_ref = node->left;
+    *parents_child_ref = node->left;
   } else if(!node->left && node->right) {
     node->right->parent = node->parent;
-    if(!node->parent)
-      tree->root = node->right;
-    else
-      *parents_child_ref = node->right;
+    *parents_child_ref = node->right;
   } else {
-    if(!node->parent)
-      tree->root = NULL;
-    else
-      *parents_child_ref = NULL;
+    *parents_child_ref = NULL;
   }
 
   if(tree->free_function)

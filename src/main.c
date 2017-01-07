@@ -10,15 +10,18 @@ int main(void) {
   avl_tree_t tree;
   avl_tree_new(&tree, sizeof(int), NULL, compare);
   for(i = 0; i < 100; i++) {
-    b = (i << 3)*(i >> 3);
+    b = i*(i << 6);
     avl_tree_add(&tree, &b);
   }
-  i = 4;
-  for(i = 0; i < 101; i++) {
-    b = (i << 3)*(i >> 3);
+  for(i = 0; i < 100; i+=2+i) {
+    b = i*(i << 6);
+    avl_tree_remove(&tree, &b);
+  }
+  for(i = 0; i < 100; i++) {
+    b = i*(i << 6);
     printf("%i\n", avl_tree_contains(&tree, &b));
   }
-
+  avl_tree_free(&tree);
   return 0;
 }
 

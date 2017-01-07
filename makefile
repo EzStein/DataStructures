@@ -5,7 +5,7 @@ define COMPILE
 endef
 
 OBJECTS = $(patsubst src/%.c, obj/%.o, $(wildcard src/*.c))
-FLAGS = -Wall -Wextra -std=c89 -pedantic -Wmissing-prototypes \
+FLAGS = -g -Wall -Wextra -std=c89 -pedantic -Wmissing-prototypes \
 -Wstrict-prototypes -Wold-style-definition
 
 exe/a.out: $(OBJECTS)
