@@ -169,66 +169,203 @@ void avl_tree_add(avl_tree_t * tree, void * key) {
 }
 
 void avl_tree_remove(avl_tree_t * tree, void * key) {
+  int bal;
+  int8_t skip;
   avl_tree_node_t * node = tree->root;
+  /*This double pointer is used to set the parents child pointer. Since it
+  is unknown whether the parent's child is the left or right child or simply the root
+  of the tree, this variable is used.*/
   avl_tree_node_t ** parents_child_ref;
   avl_tree_node_t * tmp_node;
   void * tmp_key;
 
   int8_t compare;
+  int8_t to_remove_child_type;
+
+  /*Search for the node to remove*/
   while(node) {
     compare = tree->compare(key, node->key);
     if(compare < 0) {
       node = node->left;
+      to_remove_child_type = -1;
       if(node)
         parents_child_ref = &(node->parent->left);
     } else if (compare > 0) {
       node = node->right;
+      to_remove_child_type = 1;
       if(node)
         parents_child_ref = &(node->parent->right);
     } else {
+      /*Compare equals 0 and we found the node to remove*/
       break;
     }
   }
-
+  /*node now points to the node containing the given key, or NULL if no such node existed*/
   if(!node) return;
 
-  /*We must now remove node*/
+
   if(!node->parent) {
     parents_child_ref = &(tree->root);
   }
 
-
+  /*parents_child_ref now points to the pointer that should point to the removed node in the tree*/
+  /*We must now remove node*/
   if(node->left && node->right) {
+    /*Find the first key that is larger than the one to remove*/
     tmp_node = node->right;
     parents_child_ref = &(node->right);
+    to_remove_child_type = 1;
     while(tmp_node->left) {
+      to_remove_child_type = -1;
       parents_child_ref = &(tmp_node->left);
       tmp_node = tmp_node->left;
     }
+    /*Swap keys*/
     tmp_key = node->key;
     node->key = tmp_node->key;
     tmp_node->key = tmp_key;
 
+    /*Set node to point to the node to remove*/
     node = tmp_node;
+    /*Either splice out the node or simply remove it depending on whether it has a right child*/
     *parents_child_ref = node->right;
 
     if(node->right)
       node->right->parent = node->parent;
   } else if(node->left && !node->right) {
+    /*Splice out the middle*/
     node->left->parent = node->parent;
     *parents_child_ref = node->left;
   } else if(!node->left && node->right) {
+    /*Splice out the middle*/
     node->right->parent = node->parent;
     *parents_child_ref = node->right;
   } else {
+    /*Remove a leaf*/
     *parents_child_ref = NULL;
   }
 
+  /*Now we must rebalance the tree*/
+  /*First we update the balance_factor of each node in the deleted path
+  * We start by updating the deleted node's parent*/
+  skip = 0;
+  if(node->parent) {
+    if(to_remove_child_type < 0) {
+        node->parent->balance_factor++;
+        if(node->parent->balance_factor >= 1) skip = 1;
+    } else {
+        node->parent->balance_factor--;
+        if(node->parent->balance_factor <= -1) skip = 1;
+    }
+  }
+
+  tmp_node = node->parent;
+  /*REMOVE THE NODE*/
   tree->size--;
   if(tree->free_function)
     tree->free_function(node->key);
   free(node->key);
   free(node);
+  node = tmp_node;
+
+  if(!node) return;
+  while(1) {
+    while(!skip && node->parent && node->balance_factor >= -1 && node->balance_factor <= 1) {
+
+      if(tree->compare(node->key, node->parent->key) < 0) {
+        /*node is the left child*/
+        node->parent->balance_factor++;
+        /*When the parent's balance factor is 2 or 1 (formerly 1 or 0) that means the right sub tree was
+        taller than or the same height as the left to begin with and the removal of one node did not effect the height of the parent.
+        Thus we can stop moving up the tree*/
+        if(node->parent->balance_factor >= 1) {
+          node = node->parent;
+          break;
+        }
+      } else {
+        /*node is right child*/
+        node->parent->balance_factor--;
+        if(node->parent->balance_factor <= -1) {
+          node = node->parent;
+          break;
+        }
+      }
+      node = node->parent;
+    }
+
+    /*No rebalancing necesary.*/
+    if(node->balance_factor >= -1 && node->balance_factor <= 1) return;
+
+    /*ROTATION TIME*/
+    /*node's balance_factor is either 2 or -2*/
+    if(node->balance_factor == 2) {
+      /*node->right->balance_factor is either 1 0 or -1*/
+      if(node->right->balance_factor == 1) {
+        avl_tree_rotation(tree, node->right);
+        node->balance_factor = 0;
+        node->parent->balance_factor = 0;
+      } else if(node->right->balance_factor == 0) {
+        avl_tree_rotation(tree, node->right);
+        node->balance_factor = 1;
+        node->parent->balance_factor = -1;
+      } else {
+        bal = node->right->left->balance_factor;
+        avl_tree_rotation(tree, node->right->left);
+        avl_tree_rotation(tree, node->right);
+        node->parent->balance_factor = 0;
+        if(bal == 0) {
+          node->balance_factor = 0;
+          node->parent->right->balance_factor = 0;
+        } else if(bal == 1) {
+          node->balance_factor = -1;
+          node->parent->right->balance_factor = 0;
+        } else if(bal == -1) {
+          node->balance_factor = 0;
+          node->parent->right->balance_factor = 1;
+        }
+      }
+    } else {
+      /*node->right->balance_factor is either 1 0 or -1*/
+      if(node->left->balance_factor == -1) {
+        avl_tree_rotation(tree, node->left);
+        node->balance_factor = 0;
+        node->parent->balance_factor = 0;
+      } else if(node->left->balance_factor == 0) {
+        avl_tree_rotation(tree, node->left);
+        node->balance_factor = -1;
+        node->parent->balance_factor = 1;
+      } else {
+        bal = node->left->right->balance_factor;
+        avl_tree_rotation(tree, node->left->right);
+        avl_tree_rotation(tree, node->left);
+        node->parent->balance_factor = 0;
+        if(bal == 0) {
+          node->balance_factor = 0;
+          node->parent->left->balance_factor = 0;
+        } else if(bal == 1) {
+          node->balance_factor = 0;
+          node->parent->left->balance_factor = -1;
+        } else if(bal == -1) {
+          node->balance_factor = 1;
+          node->parent->left->balance_factor = 0;
+        }
+      }
+    }
+    /*The balancing decreased the subtree height so we must repeat the loop*/
+    node = node->parent;
+    if(!node->parent || node->balance_factor != 0) return;
+
+    skip = 0;
+    if(tree->compare(node->key, node->parent->key) < 0) {
+      node->parent->balance_factor++;
+      if(node->parent->balance_factor >= 1) skip = 1;
+    } else {
+      node->parent->balance_factor--;
+      if(node->parent->balance_factor <= -1) skip = 1;
+    }
+    node = node->parent;
+  }
+
 }
 
 int8_t avl_tree_contains(avl_tree_t * tree, void * key) {
@@ -371,7 +508,11 @@ static uint8_t avl_tree_sub_tree_invariant(avl_tree_t * tree, avl_tree_node_t * 
   h2 = avl_tree_height_sub_tree(tree, node->right);
 
   if(h2 - h1 != node->balance_factor){
-    printf("%i: expected %i\n", node->balance_factor, h2-h1);
+    printf("%i: expected %i at node containing %i\n", node->balance_factor, h2-h1, *(int *)node->key);
+    return 0;
+  }
+  if(h2 - h1 <= -2 || h2 - h1 >= 2) {
+    printf("Node containing %i is imbalanced: %i\n",*(int *)node->key, h2-h1);
     return 0;
   }
 
