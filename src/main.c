@@ -3,6 +3,7 @@
 #include <time.h>
 #include "avl_tree.h"
 #include "queue.h"
+#include "lifo_stack.h"
 
 int8_t compare(void * first, void * second);
 void iterator(void * val, int a);
@@ -46,7 +47,7 @@ int main(void) {
   if(!a) return 0;
   avl_tree_free(&tree);
 }*/
-  avl_tree_t tree;
+  /*avl_tree_t tree;
   int a;
   avl_tree_new(&tree, sizeof(int), NULL, compare);
   a = 4;
@@ -74,7 +75,7 @@ int main(void) {
   a = 9;
   avl_tree_add(&tree, &a);
   avl_tree_print(&tree);
-  avl_tree_free(&tree);
+  avl_tree_free(&tree);*/
   /*queue_t queue;
   int a, i;
   queue_new(&queue, sizeof(int), NULL);
@@ -96,6 +97,25 @@ int main(void) {
   }
 
   queue_free(&queue);*/
+  lifo_stack_t stack;
+  int i;
+  int a = 10;
+  lifo_stack_new(&stack, sizeof(int), NULL);
+  for(a = 0; a < 100; a++) {
+    lifo_stack_push(&stack, &a);
+  }
+  for(i = 0; i < 50; i++) {
+    lifo_stack_pop(&stack, &a);
+    printf("%i\n", a);
+  }
+  for(a = 50; a < 100; a++) {
+    lifo_stack_push(&stack, &a);
+  }
+  for(i = 0; i < 100; i++) {
+    lifo_stack_pop(&stack, &a);
+    printf("%i\n", a);
+  }
+
   return 0;
 }
 

@@ -15,18 +15,20 @@ void lifo_stack_new(lifo_stack_t * stack, size_t entry_size, void (*free_functio
 void lifo_stack_free(lifo_stack_t * stack) {
   int i;
   for(i = 0; i < stack->size; i++) {
-    stack->free_function(stack->array[i]);
+    if(stack->free_function)
+      stack->free_function(stack->array[i]);
     free(stack->array[i]);
   }
   free(stack->array);
 }
 
 void lifo_stack_push(lifo_stack_t * stack, void * data) {
+  void * ptr;
   if(stack->size == stack->capacity) {
-    stack->array = realloc(stack->array, 2 * stack->capacity * (void *));
+    stack->array = realloc(stack->array, 2 * stack->capacity * sizeof(void *));
     stack->capacity *= 2;
   }
-  void * ptr = malloc(stack->entry_size);
+  ptr = malloc(stack->entry_size);
   memcpy(ptr, data, stack->entry_size);
   stack->array[stack->head] = ptr;
   stack->head++;
@@ -38,7 +40,8 @@ void lifo_stack_pop(lifo_stack_t * stack, void * ptr) {
   stack->head--;
   stack->size--;
   memcpy(ptr, stack->array[stack->head], stack->entry_size);
-  stack->free_function(stack->array[stack->head]);
+  if(stack->free_function)
+    stack->free_function(stack->array[stack->head]);
   free(stack->array[stack->head]);
 }
 
