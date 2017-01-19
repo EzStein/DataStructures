@@ -82,13 +82,22 @@ int main(void) {
   int a, i;
   queue_new(&queue, sizeof(int), NULL);
   for(i = 0; i < 100; i++) {
-    printf("%i\n", i);
     a = i;
     queue_enqueue(&queue, &a);
   }
-  printf("DEQUEING...\n");
-  queue_dequeue(&queue, &a);
-  printf("%i\n", a);
+  for(i = 0; i < 50; i++) {
+    queue_dequeue(&queue, &a);
+    printf("%i\n", a);
+  }
+  for(i = 0; i < 50; i++) {
+    a = i;
+    queue_enqueue(&queue, &a);
+  }
+  for(i = 0; i < 100; i++) {
+    queue_dequeue(&queue, &a);
+    printf("%i\n", a);
+  }
+
   queue_free(&queue);
   return 0;
 }

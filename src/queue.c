@@ -14,6 +14,7 @@ void queue_new(queue_t * queue, size_t entry_size, void (*free_function)(void *)
   queue->head = 0;
   queue->tail = 0;
 }
+
 void queue_free(queue_t * queue) {
   int i;
   void * ptr;
@@ -31,7 +32,7 @@ void queue_enqueue(queue_t * queue, void * key) {
   void ** new_ring;
   int i;
   if(queue->size == queue->capacity) {
-    new_ring = malloc(2 * queue->capacity);
+    new_ring = malloc(2 * queue->capacity * sizeof(void *));
     for(i = queue->tail; i < queue->tail + queue->size; i++) {
       new_ring[i - queue->tail] = queue->ring[i % queue->capacity];
     }
@@ -44,10 +45,7 @@ void queue_enqueue(queue_t * queue, void * key) {
     queue->head = queue->size;
 
   }
-  printf("##\n");
   ptr = malloc(queue->entry_size);
-  printf("!!\n");
-  fflush(stdout);
   memcpy(ptr, key, queue->entry_size);
 
   queue->ring[queue->head] = ptr;
