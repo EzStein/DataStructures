@@ -26,7 +26,7 @@ exe/tests.out : obj/tests.o obj/bst_tree.o
 
 obj/main.o : src/main.c src/avl_tree.h src/bst_tree.h src/queue.h
 	$(COMPILE)
-obj/avl_tree.o : src/avl_tree.c src/avl_tree.h
+obj/avl_tree.o : src/avl_tree.c src/avl_tree.h src/queue.h
 	$(COMPILE)
 obj/bst_tree.o : src/bst_tree.c src/bst_tree.h
 	$(COMPILE)

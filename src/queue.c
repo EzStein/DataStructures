@@ -65,3 +65,7 @@ void queue_dequeue(queue_t * queue, void * ptr) {
     queue->free_function(data);
   free(data);
 }
+
+uint8_t queue_is_empty(queue_t * queue) {
+  return queue->size == 0;
+}

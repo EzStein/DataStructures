@@ -1,4 +1,5 @@
 #include "avl_tree.h"
+#include "queue.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -10,6 +11,7 @@ static void avl_tree_traverse_sub_tree_in_order(avl_tree_node_t * node, void (*i
 static void avl_tree_traverse_sub_tree_pre_order(avl_tree_node_t * node, void (*iterator)(void *, int), uint8_t);
 static void avl_tree_traverse_sub_tree_post_order(avl_tree_node_t * node, void (*iterator)(void *, int), uint8_t);
 static int avl_tree_height_sub_tree(avl_tree_t * tree, avl_tree_node_t * node);
+static void pad_string(const char * string, size_t size, char * result);
 
 struct avl_tree_node {
   int8_t balance_factor;
@@ -533,76 +535,153 @@ static int avl_tree_height_sub_tree(avl_tree_t * tree, avl_tree_node_t * node) {
 }
 
 void avl_tree_print(avl_tree_t * tree) {
-  /*A crude queue*/
-  int index = 0, i, offset;
-  int max_index = 1;
-  int depth = 0;
-  int pop = 0;
-  int push = 0;
-  avl_tree_node_t ** nodes = malloc(1000 * sizeof(avl_tree_node_t *));
+  char * buf;
+  char * buf2;
+  queue_t queue;
   avl_tree_node_t * node;
-
-  int height = 0;
-  int val = tree->size;
-  while((val = val >> 1)) {height++;}
-
-  val = 1;
-  while(height) {
-    val = 2 * val;
-    height--;
+  int height, tmp, current_depth, current_index, tier_index, end, i, j, k, entry_width;
+  long nul = 0;
+  buf = malloc(100);
+  buf2 = malloc(100);
+  tmp = tree->size;
+  for(height = 0; tmp; height++) {
+    tmp >>= 1;
   }
-
-  nodes[push++] = tree->root;
-  nodes[push++] = NULL; /*INDICATING THE END OF A LINE*/
-  while(push != pop) {
-    node = nodes[pop++];
-    if(!node) {
-
-      depth++;
-      index=0;
-      if(push != pop) {
-        nodes[push++] = NULL;
-      }
-
-      printf("\n");
-      offset = val/max_index/2;
-      for(i = 0; i < val; i++) {
-        if((i-offset)%(val/max_index) == 0)
-          printf("|");
-        else
+  entry_width = 5;
+  queue_new(&queue, sizeof(avl_tree_node_t *), NULL);
+  if(tree->root)
+    queue_enqueue(&queue, &(tree->root));
+  current_index = 0;
+  current_depth = 0;
+  tier_index = 0;
+  end = 0;
+  while(!queue_is_empty(&queue)) {
+    queue_dequeue(&queue, &node);
+    if(tier_index == 0) {
+      tmp = (1 << (height + 1))/(1 << (current_depth + 1));
+      for(i = 0; i < tmp; i++) {
+        for(j = 0; j < entry_width; j++) {
           printf(" ");
+        }
       }
-      printf("\n");
-      for(i = 0; i < val; i++) {
-        printf("-");
-      }
-      printf("\n");
-      max_index = max_index * 2;
-      offset = val/max_index/2;
-      for(i = 0; i < val; i++) {
-        if((i-offset)%(val/max_index) == 0)
-          printf("|");
-        else
-          printf(" ");
-      }
-      printf("\n");
-      continue;
     }
-    if(node->left)
-      nodes[push++] = node->left;
-    if(node->right)
-      nodes[push++] = node->right;
-
-    if(index == 0) {
-      for(i = 0; i < val/max_index/2; i++) {
+    if(node) {
+      sprintf(buf2, "%i", *(int *) node->key);
+      pad_string(buf2, entry_width, buf);
+      printf("%s", buf);
+    } else {
+      pad_string("#", entry_width, buf);
+      printf("%s", buf);
+    }
+    tmp = (1 << (height + 1))/(1 << current_depth) - 1;
+    for(i = 0; i < tmp; i++) {
+      for(j = 0; j < entry_width; j++) {
         printf(" ");
       }
     }
-    printf("%i", node->balance_factor+1);
-    for(i = 0; i < val/max_index - 1; i++) {
-      printf(" ");
+    current_index++;
+    tier_index++;
+    if((current_index + 1) >> (current_depth + 1)) {
+      if(end) break;
+      end = 1;
+      current_depth++;
+      tier_index = 0;
+      printf("\n");
+      tmp = (1 << (height + 1))/(1 << (current_depth));
+      for(i = 0; i < tmp; i++) {
+        for(j = 0; j < entry_width; j++) {
+          printf(" ");
+        }
+      }
+      for(k = 0; k < (1 << (current_depth - 1)); k++) {
+        pad_string("|", entry_width, buf);
+        printf("%s", buf);
+        tmp = (1 << (height + 1))/(1 << (current_depth - 1)) - 1;
+        for(i = 0; i < tmp; i++) {
+          for(j = 0; j < entry_width; j++) {
+            printf(" ");
+          }
+        }
+      }
+      printf("\n");
+      for(i = 0; i < entry_width - 2; i++)
+        printf(" ");
+      tmp = (1 << (height + 1))/(1 << (current_depth + 1));
+      for(i = 0; i < tmp; i++) {
+        for(j = 0; j < entry_width; j++) {
+          printf(" ");
+        }
+      }
+      for(k = 0; k < (1 << (current_depth)); k++) {
+        tmp = (1 << (height + 1))/(1 << (current_depth)) - 1;
+
+        for(i = 0; i < tmp + 1; i++) {
+          for(j = 0; j < entry_width; j++) {
+            if(!(k % 2))
+              printf("-");
+            else
+              printf(" ");
+          }
+        }
+      }
+      printf("\n");
+      tmp = (1 << (height + 1))/(1 << (current_depth + 1));
+      for(i = 0; i < tmp; i++) {
+        for(j = 0; j < entry_width; j++) {
+          printf(" ");
+        }
+      }
+      for(k = 0; k < (1 << (current_depth)); k++) {
+        pad_string("|", entry_width, buf);
+        printf("%s", buf);
+        tmp = (1 << (height + 1))/(1 << (current_depth)) - 1;
+        for(i = 0; i < tmp; i++) {
+          for(j = 0; j < entry_width; j++) {
+            printf(" ");
+          }
+        }
+      }
+      printf("\n");
+
     }
-    index++;
+
+    if(node) end = 0;
+    if(!node) {
+      queue_enqueue(&queue, &nul);
+      queue_enqueue(&queue, &nul);
+      continue;
+    }
+    if(node->left)
+      queue_enqueue(&queue, &(node->left));
+    else
+      queue_enqueue(&queue, &nul);
+
+    if(node->right)
+      queue_enqueue(&queue, &(node->right));
+    else
+      queue_enqueue(&queue, &nul);
+
   }
-  free(nodes);
+  queue_free(&queue);
+  printf("\n");
+  free(buf);
+  free(buf2);
+}
+
+/*Note result must be at least size + 1 size
+Assumes length of the string is less than the desired size*/
+static void pad_string(const char * string, size_t size, char * result) {
+  size_t init_len = strlen(string);
+  size_t i;
+  size_t pad_size = (size - init_len)/2;
+  for(i = 0; i < pad_size; i++) {
+    result[i] = ' ';
+  }
+  for(i = pad_size; i < pad_size + init_len; i++) {
+    result[i] = string[i - pad_size];
+  }
+  for(i = pad_size + init_len; i < size; i++) {
+    result[i] = ' ';
+  }
+  result[size] = '\0';
 }

@@ -46,7 +46,9 @@ int main(void) {
   if(!a) return 0;
   avl_tree_free(&tree);
 }*/
-  /*avl_tree_new(&tree, sizeof(int), NULL, compare);
+  avl_tree_t tree;
+  int a;
+  avl_tree_new(&tree, sizeof(int), NULL, compare);
   a = 4;
   avl_tree_add(&tree, &a);
   a = 2;
@@ -71,14 +73,9 @@ int main(void) {
   avl_tree_add(&tree, &a);
   a = 9;
   avl_tree_add(&tree, &a);
-  a = 5;
-  avl_tree_remove(&tree, &a);
-  a = avl_tree_invariant(&tree);
-  printf("%i\n", a);
-  avl_tree_traverse_pre_order(&tree, iterator);
-  printf("\n");
-  avl_tree_free(&tree);*/
-  queue_t queue;
+  avl_tree_print(&tree);
+  avl_tree_free(&tree);
+  /*queue_t queue;
   int a, i;
   queue_new(&queue, sizeof(int), NULL);
   for(i = 0; i < 100; i++) {
@@ -98,7 +95,7 @@ int main(void) {
     printf("%i\n", a);
   }
 
-  queue_free(&queue);
+  queue_free(&queue);*/
   return 0;
 }
 

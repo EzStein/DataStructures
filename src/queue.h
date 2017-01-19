@@ -1,6 +1,7 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 #include <stddef.h>
+#include <stdlib.h>
 typedef struct queue queue_t;
 struct queue {
   int size;
@@ -18,6 +19,7 @@ struct queue {
 void queue_new(queue_t *, size_t entry_size, void (*free_function)(void *));
 void queue_free(queue_t *);
 void queue_enqueue(queue_t *, void *);
+uint8_t queue_is_empty(queue_t *);
 /*Removes the item from the queue and stores it in the passed in pointer.*/
 void queue_dequeue(queue_t *, void *);
 #endif
