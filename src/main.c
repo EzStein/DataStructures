@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include <time.h>
 #include "avl_tree.h"
+#include "queue.h"
 
 int8_t compare(void * first, void * second);
 void iterator(void * val, int a);
 int main(void) {
-  int a, i, j;
+  /*int a, i, j;
   avl_tree_t tree;
-  srand(10000*time(NULL));
+  srand(10000*time(NULL));*/
   /*for(j = 0; j < 100000; j++) {
     avl_tree_new(&tree, sizeof(int), NULL, compare);
     for(i = 0; i < 10; i++) {
@@ -27,24 +28,24 @@ int main(void) {
     avl_tree_free(&tree);
   }*/
 
-for(j = 0; j < 1000000; j++) {
+/*for(j = 0; j < 1000000; j++) {
+  printf("%i\r", j);
+  fflush(stdout);
   avl_tree_new(&tree, sizeof(int), NULL, compare);
   for(i = 0; i < 10000; i++) {
     a = rand() % 10000;
-    printf("Adding %i\n", a);
+
     avl_tree_add(&tree, &a);
-    a = avl_tree_invariant(&tree);
-    if(!a) return 0;
   }
   for(i = 0; i < 10000; i++) {
     a = rand() % 10000;
-    printf("Removing %i\n", a);
     avl_tree_remove(&tree, &a);
-    a = avl_tree_invariant(&tree);
-    if(!a) return 0;
+
   }
+  a = avl_tree_invariant(&tree);
+  if(!a) return 0;
   avl_tree_free(&tree);
-}
+}*/
   /*avl_tree_new(&tree, sizeof(int), NULL, compare);
   a = 4;
   avl_tree_add(&tree, &a);
@@ -77,6 +78,18 @@ for(j = 0; j < 1000000; j++) {
   avl_tree_traverse_pre_order(&tree, iterator);
   printf("\n");
   avl_tree_free(&tree);*/
+  queue_t queue;
+  int a, i;
+  queue_new(&queue, sizeof(int), NULL);
+  for(i = 0; i < 100; i++) {
+    printf("%i\n", i);
+    a = i;
+    queue_enqueue(&queue, &a);
+  }
+  printf("DEQUEING...\n");
+  queue_dequeue(&queue, &a);
+  printf("%i\n", a);
+  queue_free(&queue);
   return 0;
 }
 
