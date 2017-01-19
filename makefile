@@ -34,6 +34,8 @@ obj/tests.o : src/tests/tests.c src/tests/minunit.h src/avl_tree.h src/bst_tree.
 	$(COMPILE)
 obj/queue.o : src/queue.c src/queue.h
 	$(COMPILE)
+obj/lifo_stack.o : src/lifo_stack.c src/lifo_stack.h
+	$(COMPILE)
 
 clean:
 	@echo CLEANING UP

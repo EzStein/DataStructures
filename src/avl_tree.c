@@ -618,7 +618,7 @@ void avl_tree_print(avl_tree_t * tree) {
         for(i = 0; i < tmp + 1; i++) {
           for(j = 0; j < entry_width; j++) {
             if(!(k % 2))
-              printf("-");
+              printf("─");
             else
               printf(" ");
           }
