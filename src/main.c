@@ -5,12 +5,23 @@
 #include "queue.h"
 #include "lifo_stack.h"
 #include "binary_heap.h"
+#include "array_list.h"
 
 int8_t compare(void * first, void * second);
 void iterator(void * val, int a);
 int main(void) {
+  int i, a;
+  array_list_t array;
+  array_list_new(&array, sizeof(int));
+  for(i = 0; i < 100; i++)
+    array_list_add_at(&array, 0, &i);
+  for(i = 99; i >= 0; i--) {
+    array_list_get(&array, i, &a);
+    printf("%i\n", a);
+  }
 
-  binary_heap_t heap;
+  array_list_free(&array);
+  /*binary_heap_t heap;
   int a, i;
   srand(10000*time(NULL));
   binary_heap_new(&heap, sizeof(int), compare);
@@ -38,7 +49,7 @@ int main(void) {
     binary_heap_extract(&heap, &a);
     printf("%i\n", a);
   }
-  binary_heap_free(&heap);
+  binary_heap_free(&heap);*/
   return 0;
 }
 

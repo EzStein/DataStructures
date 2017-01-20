@@ -38,6 +38,8 @@ obj/lifo_stack.o : src/lifo_stack.c src/lifo_stack.h
 	$(COMPILE)
 obj/binary_heap.o : src/binary_heap.c src/binary_heap.h
 	$(COMPILE)
+obj/array_list.o : src/array_list.c src/array_list.h
+	$(COMPILE)
 
 clean:
 	@echo CLEANING UP
