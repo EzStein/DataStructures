@@ -4,118 +4,41 @@
 #include "avl_tree.h"
 #include "queue.h"
 #include "lifo_stack.h"
+#include "binary_heap.h"
 
 int8_t compare(void * first, void * second);
 void iterator(void * val, int a);
 int main(void) {
-  /*int a, i, j;
-  avl_tree_t tree;
-  srand(10000*time(NULL));*/
-  /*for(j = 0; j < 100000; j++) {
-    avl_tree_new(&tree, sizeof(int), NULL, compare);
-    for(i = 0; i < 10; i++) {
-      a = rand() % 10;
-      printf("%i\n", a);
-      avl_tree_add(&tree, &a);
-    }
-    for(i = 0; i < 10; i++) {
-      a = rand() % 10;
-      printf("Removed: %i\n", a);
-      avl_tree_remove(&tree, &a);
-      a = avl_tree_invariant(&tree);
-      printf("%i\n", a);
-      if(!a) return 0;
-    }
-    avl_tree_free(&tree);
-  }*/
 
-/*for(j = 0; j < 1000000; j++) {
-  printf("%i\r", j);
-  fflush(stdout);
-  avl_tree_new(&tree, sizeof(int), NULL, compare);
-  for(i = 0; i < 10000; i++) {
-    a = rand() % 10000;
-
-    avl_tree_add(&tree, &a);
-  }
-  for(i = 0; i < 10000; i++) {
-    a = rand() % 10000;
-    avl_tree_remove(&tree, &a);
-
-  }
-  a = avl_tree_invariant(&tree);
-  if(!a) return 0;
-  avl_tree_free(&tree);
-}*/
-  /*avl_tree_t tree;
-  int a;
-  avl_tree_new(&tree, sizeof(int), NULL, compare);
-  a = 4;
-  avl_tree_add(&tree, &a);
-  a = 2;
-  avl_tree_add(&tree, &a);
-  a = 10;
-  avl_tree_add(&tree, &a);
-  a = 0;
-  avl_tree_add(&tree, &a);
-  a = 3;
-  avl_tree_add(&tree, &a);
-  a = 7;
-  avl_tree_add(&tree, &a);
-  a = 11;
-  avl_tree_add(&tree, &a);
-  a = 1;
-  avl_tree_add(&tree, &a);
-  a = 5;
-  avl_tree_add(&tree, &a);
-  a = 8;
-  avl_tree_add(&tree, &a);
-  a = 12;
-  avl_tree_add(&tree, &a);
-  a = 9;
-  avl_tree_add(&tree, &a);
-  avl_tree_print(&tree);
-  avl_tree_free(&tree);*/
-  /*queue_t queue;
+  binary_heap_t heap;
   int a, i;
-  queue_new(&queue, sizeof(int), NULL);
-  for(i = 0; i < 100; i++) {
-    a = i;
-    queue_enqueue(&queue, &a);
+  srand(10000*time(NULL));
+  binary_heap_new(&heap, sizeof(int), compare);
+  for(i = 0; i < 1000; i++) {
+    a = rand() % 1000;
+    binary_heap_insert(&heap, &a);
   }
-  for(i = 0; i < 50; i++) {
-    queue_dequeue(&queue, &a);
+  for(i = 0; i < 500; i++) {
+    binary_heap_extract(&heap, &a);
     printf("%i\n", a);
   }
-  for(i = 0; i < 50; i++) {
-    a = i;
-    queue_enqueue(&queue, &a);
+  for(i = 0; i < 1000; i++) {
+    a = rand() % 1000;
+    binary_heap_insert(&heap, &a);
   }
-  for(i = 0; i < 100; i++) {
-    queue_dequeue(&queue, &a);
+  for(i = 0; i < 1000; i++) {
+    binary_heap_extract(&heap, &a);
     printf("%i\n", a);
   }
-
-  queue_free(&queue);*/
-  lifo_stack_t stack;
-  int i;
-  int a = 10;
-  lifo_stack_new(&stack, sizeof(int), NULL);
-  for(a = 0; a < 100; a++) {
-    lifo_stack_push(&stack, &a);
+  for(i = 0; i < 1000; i++) {
+    a = rand() % 1000;
+    binary_heap_insert(&heap, &a);
   }
-  for(i = 0; i < 50; i++) {
-    lifo_stack_pop(&stack, &a);
+  for(i = 0; i < 1500; i++) {
+    binary_heap_extract(&heap, &a);
     printf("%i\n", a);
   }
-  for(a = 50; a < 100; a++) {
-    lifo_stack_push(&stack, &a);
-  }
-  for(i = 0; i < 100; i++) {
-    lifo_stack_pop(&stack, &a);
-    printf("%i\n", a);
-  }
-
+  binary_heap_free(&heap);
   return 0;
 }
 

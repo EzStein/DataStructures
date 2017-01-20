@@ -36,6 +36,8 @@ obj/queue.o : src/queue.c src/queue.h
 	$(COMPILE)
 obj/lifo_stack.o : src/lifo_stack.c src/lifo_stack.h
 	$(COMPILE)
+obj/binary_heap.o : src/binary_heap.c src/binary_heap.h
+	$(COMPILE)
 
 clean:
 	@echo CLEANING UP
