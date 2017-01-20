@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+#include "../array_list.h"
 #include "minunit.h"
 #include "../bst_tree.h"
 
@@ -10,6 +12,7 @@ int tests_run = 0;
 
 static int8_t compare(void *, void *);
 static char * bst_tree_test();
+static char * array_list_test();
 static void iterator(void *, int);
 static char * test_traversal(bst_tree_t * tree, int expected_size, int * in_order_arr, int * pre_order_arr, int * post_order_arr);
 
@@ -139,13 +142,105 @@ static char * test_traversal(bst_tree_t * tree, int expected_size, int * in_orde
   return 0;
 }
 
+static char * array_list_test() {
+  array_list_t list;
+  int tmp, tmp1, tmp2, i, index1, index2;
+  array_list_new(&list, sizeof(int));
+  /*Test Size*/
+  for(i = 0; i < 1000; i++) {
+
+    tmp = array_list_size(&list);
+    sprintf(str_buf, "array_list_size() gives %i as size. Expected %i.", tmp, i);
+    mu_assert(str_buf, tmp == i);
+    array_list_add(&list, &i);
+  }
+
+  /*Test get*/
+  for(i = 0; i < 1000; i++) {
+    array_list_get(&list, i, &tmp);
+    sprintf(str_buf, "array_list_get() gives %i as element. Expected %i.", tmp, i);
+    mu_assert(str_buf, tmp == i);
+  }
+
+  /*Test remove from front*/
+  for(i = 0; i < 1000; i++) {
+    array_list_remove(&list, 0, &tmp);
+    sprintf(str_buf, "array_list_remove() gives %i as element. Expected %i.", tmp, i);
+    mu_assert(str_buf, tmp == i);
+    tmp = array_list_size(&list);
+    sprintf(str_buf, "array_list_size() gives %i as size. Expected %i.", tmp, 999 - i);
+    mu_assert(str_buf, tmp == 999 - i);
+  }
+
+  /*Rebuild array*/
+  for(i = 0; i < 1000; i++) {
+    array_list_add(&list, &i);
+  }
+
+  /*Test remove from last*/
+  for(i = 0; i < 1000; i++) {
+    array_list_remove(&list, 999 - i, &tmp);
+    sprintf(str_buf, "array_list_remove() gives %i as element. Expected %i.", tmp, 999 - i);
+    mu_assert(str_buf, tmp == 999 - i);
+    tmp = array_list_size(&list);
+    sprintf(str_buf, "array_list_size() gives %i as size. Expected %i.", tmp, 999 - i);
+    mu_assert(str_buf, tmp == 999 - i);
+  }
+
+  /*Rebuild array by inserting at head and test get*/
+  for(i = 0; i < 1000; i++) {
+    array_list_insert(&list, 0, &i);
+    array_list_get(&list, 0, &tmp);
+    sprintf(str_buf, "array_list_get() gives %i as element. Expected %i.", tmp, i);
+    mu_assert(str_buf, tmp == i);
+  }
+
+  /*Test clear*/
+  array_list_clear(&list);
+  tmp = array_list_size(&list);
+  sprintf(str_buf, "array_list_size() gives %i as size. Expected %i.", tmp, 0);
+  mu_assert(str_buf, tmp == 0);
+
+  i = 999;
+  array_list_insert(&list, 0, &i);
+  /*Test insert second to last*/
+  for(i = 0; i < 998; i++) {
+    array_list_insert(&list, i, &i);
+    array_list_get(&list, i, &tmp);
+    sprintf(str_buf, "array_list_get() gives %i as element. Expected %i.", tmp, i);
+    mu_assert(str_buf, tmp == i);
+  }
+
+  /*Test Swap*/
+  for(i = 0; i < 1000; i++) {
+    index1 = rand() % 1000;
+    index2 = rand() & 1000;
+    array_list_get(&list, index1, &tmp1);
+    array_list_get(&list, index2, &tmp2);
+    array_list_swap(&list, index1, index2);
+    array_list_get(&list, index1, &tmp);
+    sprintf(str_buf, "array_list_get() gives %i as element. Expected %i.", tmp, tmp2);
+    mu_assert(str_buf, tmp == tmp2);
+    array_list_get(&list, index2, &tmp);
+    sprintf(str_buf, "array_list_get() gives %i as element. Expected %i.", tmp, tmp1);
+    mu_assert(str_buf, tmp == tmp1);
+  }
+
+  array_list_free(&list);
+  return 0;
+}
+
 static char * run_all_tests() {
     mu_run_test(bst_tree_test);
+    mu_run_test(array_list_test);
     return 0;
 }
 
 int main() {
-  char * result = run_all_tests();
+  char * result;
+  printf("%s\n", "RUNNING...");
+  srand(time(NULL));
+  result = run_all_tests();
   if(result) {
     printf("%s\n", result);
   } else {

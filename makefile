@@ -21,7 +21,7 @@ exe : exe/a.out
 exe/a.out: $(OBJECTS)
 	$(LINK)
 
-exe/tests.out : obj/tests.o obj/bst_tree.o
+exe/tests.out : obj/tests.o obj/array_list.o obj/bst_tree.o
 	$(LINK)
 
 obj/main.o : src/main.c src/avl_tree.h src/bst_tree.h src/queue.h
@@ -30,7 +30,7 @@ obj/avl_tree.o : src/avl_tree.c src/avl_tree.h src/queue.h
 	$(COMPILE)
 obj/bst_tree.o : src/bst_tree.c src/bst_tree.h
 	$(COMPILE)
-obj/tests.o : src/tests/tests.c src/tests/minunit.h src/avl_tree.h src/bst_tree.h
+obj/tests.o : src/tests/tests.c src/tests/minunit.h src/array_list.h src/bst_tree.h
 	$(COMPILE)
 obj/queue.o : src/queue.c src/queue.h
 	$(COMPILE)
