@@ -1,5 +1,5 @@
 #include "avl_tree.h"
-#include "queue.h"
+#include "fifo_queue.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -537,7 +537,7 @@ static int avl_tree_height_sub_tree(avl_tree_t * tree, avl_tree_node_t * node) {
 void avl_tree_print(avl_tree_t * tree) {
   char * buf;
   char * buf2;
-  queue_t queue;
+  fifo_queue_t queue;
   avl_tree_node_t * node;
   int height, tmp, current_depth, current_index, tier_index, end, i, j, k, entry_width;
   long nul = 0;
@@ -548,15 +548,15 @@ void avl_tree_print(avl_tree_t * tree) {
     tmp >>= 1;
   }
   entry_width = 5;
-  queue_new(&queue, sizeof(avl_tree_node_t *), NULL);
+  fifo_queue_new(&queue, sizeof(avl_tree_node_t *));
   if(tree->root)
-    queue_enqueue(&queue, &(tree->root));
+    fifo_queue_enqueue(&queue, &(tree->root));
   current_index = 0;
   current_depth = 0;
   tier_index = 0;
   end = 0;
-  while(!queue_is_empty(&queue)) {
-    queue_dequeue(&queue, &node);
+  while(!fifo_queue_is_empty(&queue)) {
+    fifo_queue_dequeue(&queue, &node);
     if(tier_index == 0) {
       tmp = (1 << (height + 1))/(1 << (current_depth + 1));
       for(i = 0; i < tmp; i++) {
@@ -647,22 +647,22 @@ void avl_tree_print(avl_tree_t * tree) {
 
     if(node) end = 0;
     if(!node) {
-      queue_enqueue(&queue, &nul);
-      queue_enqueue(&queue, &nul);
+      fifo_queue_enqueue(&queue, &nul);
+      fifo_queue_enqueue(&queue, &nul);
       continue;
     }
     if(node->left)
-      queue_enqueue(&queue, &(node->left));
+      fifo_queue_enqueue(&queue, &(node->left));
     else
-      queue_enqueue(&queue, &nul);
+      fifo_queue_enqueue(&queue, &nul);
 
     if(node->right)
-      queue_enqueue(&queue, &(node->right));
+      fifo_queue_enqueue(&queue, &(node->right));
     else
-      queue_enqueue(&queue, &nul);
+      fifo_queue_enqueue(&queue, &nul);
 
   }
-  queue_free(&queue);
+  fifo_queue_free(&queue);
   printf("\n");
   free(buf);
   free(buf2);

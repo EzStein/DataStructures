@@ -35,6 +35,8 @@ static void binary_heap_bubble_up(binary_heap_t * heap, int index) {
   void * child, * parent;
   int parent_index = (index - 1)/2;
   if(index == 0) return;
+  child = NULL;
+  parent = NULL;
   array_list_get(heap->array, index, child);
   array_list_get(heap->array, parent_index, parent);
   while(heap->compare(child, parent) < 0) {

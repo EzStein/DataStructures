@@ -1,5 +1,6 @@
 #ifndef FIFO_QUEUE_H
 #define FIFO_QUEUE_H
+#include "array_list.h"
 #include <stddef.h>
 #include <stdlib.h>
 
