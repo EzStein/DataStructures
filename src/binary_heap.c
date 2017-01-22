@@ -31,16 +31,17 @@ void binary_heap_extract(binary_heap_t * heap, void * ptr) {
 }
 
 static void binary_heap_bubble_up(binary_heap_t * heap, int index) {
-  if(index == 0) return;
+
   void * child, * parent;
   int parent_index = (index - 1)/2;
+  if(index == 0) return;
   array_list_get(heap->array, index, child);
   array_list_get(heap->array, parent_index, parent);
   while(heap->compare(child, parent) < 0) {
     /*Swap the nodes*/
     array_list_swap(heap->array, index, parent_index);
     index = parent_index;
-    parent_index = (index - 1)/2
+    parent_index = (index - 1)/2;
 
     if(index == 0) return;
     array_list_get(heap->array, index, child);
@@ -51,7 +52,7 @@ static void binary_heap_bubble_up(binary_heap_t * heap, int index) {
 static void binary_heap_bubble_down(binary_heap_t * heap, int index) {
   int left, right;
   void * left_ptr, * right_ptr, * parent_ptr;
-
+  left_ptr = NULL; right_ptr = NULL; parent_ptr = NULL;
   while(1) {
     left = 2*index + 1;
     right = left + 1;
